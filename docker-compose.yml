@@ -7,11 +7,11 @@ services:
       - "${RABBITMQ_MANAGEMENT_PORT}:${RABBITMQ_MANAGEMENT_PORT}"
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASSWORD}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
     volumes:
       - 'rabbitmq_data:/var/lib/rabbitmq'
     networks:
-      - microservices_network
+      - ms_bridge_network
 
   postgres:
     image: postgres:15
@@ -25,7 +25,7 @@ services:
     volumes:
       - 'postgres_data:/var/lib/postgresql/data'
     networks:
-      - microservices_network
+      - ms_bridge_network
 
   service-r:
     container_name: service-r
@@ -43,7 +43,7 @@ services:
       - rabbitmq
       - postgres
     networks:
-      - microservices_network
+      - ms_bridge_network
 
   service-s:
     container_name: service-s
@@ -67,10 +67,10 @@ services:
       - rabbitmq
       - postgres
     networks:
-      - microservices_network
+      - ms_bridge_network
 
 networks:
-  microservices_network:
+  ms_bridge_network:
     driver: bridge
 
 volumes:
