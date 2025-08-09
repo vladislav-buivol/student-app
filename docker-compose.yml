@@ -1,0 +1,78 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "${RABBITMQ_AMQP_PORT}:${RABBITMQ_AMQP_PORT}"
+      - "${RABBITMQ_MANAGEMENT_PORT}:${RABBITMQ_MANAGEMENT_PORT}"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASSWORD}
+    volumes:
+      - 'rabbitmq_data:/var/lib/rabbitmq'
+    networks:
+      - microservices_network
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${PG_PORT}:${PG_PORT}"
+    volumes:
+      - 'postgres_data:/var/lib/postgresql/data'
+    networks:
+      - microservices_network
+
+  service-r:
+    container_name: service-r
+    build:
+      context: ./Service-R
+    env_file:
+      - .env
+    restart: always
+    environment:
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SERVER_PORT: ${SERVICE_R_PORT}
+    ports:
+      - "${SERVICE_R_PORT}:${SERVICE_R_PORT}"
+    depends_on:
+      - rabbitmq
+      - postgres
+    networks:
+      - microservices_network
+
+  service-s:
+    container_name: service-s
+    build:
+      context: ./Service-S
+    env_file:
+      - .env
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SERVER_PORT: ${SERVICE_S_PORT}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:${PG_PORT}/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${SERVICE_S_PORT}:${SERVICE_S_PORT}"
+    depends_on:
+      - rabbitmq
+      - postgres
+    networks:
+      - microservices_network
+
+networks:
+  microservices_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  rabbitmq_data:
