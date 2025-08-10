@@ -17,6 +17,23 @@ public class StudentRequestListener {
     @RabbitListener(queues = RabbitmqConfiguration.REQUEST_QUEUE)
     public String handleRequest(String message) {
         logger.info("handleRequest: Received request {}", message);
-        return String.format("[Echo from Service S] %s", message);
+        return """
+                <students>
+                    <student>
+                        <id>1</id>
+                        <firstName>Ivan</firstName>
+                        <lastName>Ivanov</lastName>
+                        <faculty>CS</faculty>
+                        <recordBook>12345</recordBook>
+                    </student>
+                    <student>
+                        <id>2</id>
+                        <firstName>Vasa</firstName>
+                        <lastName>Ivanov</lastName>
+                        <faculty>IKT</faculty>
+                        <recordBook>67890</recordBook>
+                    </student>
+                </students>
+                """;
     }
 }

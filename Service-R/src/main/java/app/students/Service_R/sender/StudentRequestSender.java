@@ -21,8 +21,8 @@ public class StudentRequestSender {
         Object response = rabbitTemplate.convertSendAndReceive(
                 RabbitmqConfiguration.EXCHANGE_NAME,
                 "request.student.getAll",
-                "Message-sendGetAllRequest"
+                "<getAllUnits/>"
         );
-        return response != null ? response.toString() : "No response";
+        return response != null ? response.toString() : "<error>No response</error>";
     }
 }
