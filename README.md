@@ -229,3 +229,127 @@ docker run `
 - Service-R Dockerfile exposes 8080; Service-S exposes 8081. You can override with `SERVER_PORT` at runtime as shown above.
 - In Docker Compose, service names `rabbitmq` and `postgres` act as DNS hostnames, which is why `SPRING_RABBITMQ_HOST=rabbitmq` and `jdbc:postgresql://postgres:5432/...` work.
 - If you change ports in `.env`, adjust the `-p` flags and datasource URL in manual `docker run` examples accordingly.
+
+
+## 6) Service-S SOAP API: StudentSoapEndpoint
+
+This project exposes a SOAP endpoint from Service-S that returns student data. The endpoint is implemented in:
+- Service-S/src/main/java/app/students/Service_S/endpoint/StudentSoapEndpoint.java
+- It uses the XML schema at Service-S/src/main/resources/students.xsd
+
+Key runtime URLs (default ports from application.properties):
+- WSDL: http://localhost:8081/ws/students.wsdl
+- SOAP endpoint address (soap:address location): http://localhost:8081/ws
+- Target namespace (xmlns:stu): http://example.com/students
+
+How the flow works
+- Spring-WS Dispatcher: SoapConfiguration registers MessageDispatcherServlet at `/ws/*` and enables `transformWsdlLocations`.
+- WSDL exposure: `DefaultWsdl11Definition` bean named "students" serves the WSDL at `/ws/students.wsdl` using `students.xsd` and targetNamespace `http://example.com/students`.
+- Marshalling: JAXB classes are generated from `students.xsd` into the package `com.example.students` (e.g., `GetStudentRequest`, `GetStudentResponse`, `Student`).
+- Endpoint mapping: `StudentSoapEndpoint` is annotated with `@Endpoint`. The method handling requests is mapped by `@PayloadRoot(namespace = "http://example.com/students", localPart = "getStudentRequest")`.
+- Request handling: Incoming SOAP messages with Body root `<stu:getStudentRequest>` are unmarshalled into `GetStudentRequest` and routed to `getStudent(...)`. The method returns `GetStudentResponse` which Spring-WS marshals back to SOAP.
+
+Endpoint mapping details
+- Code snippet:
+```java
+@Endpoint
+public class StudentSoapEndpoint {
+    private static final String NAMESPACE_URI = "http://example.com/students";
+
+    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "getStudentRequest")
+    @ResponsePayload
+    public GetStudentResponse getStudent(@RequestPayload GetStudentRequest request) { /* ... */ }
+}
+```
+- Mapping rule: `@PayloadRoot` localPart must match the name of the root element in the XSD (`getStudentRequest`). The namespace must match the `targetNamespace` in the XSD.
+- Service URL: The servlet mapping `/ws/*` means you POST SOAP messages to `http://localhost:8081/ws` (not to the `.wsdl` URL).
+
+XSD overview (students.xsd)
+- targetNamespace: `http://example.com/students` (prefix `tns`)
+- Defined elements:
+  - `getStudentRequest`: contains one required string field `recordBook`
+  - `getStudentResponse`: contains `firstName`, `lastName`, `faculty`, `recordBook` (all strings)
+  - `getAllStudentsRequest`: empty request (`xs:anyType`)
+  - `getAllStudentsResponse`: contains an unbounded list of `tns:student`
+- Complex types:
+  - `tns:student`: `firstName`, `lastName`, `faculty`, `recordBook`
+- Generated JAXB classes (via jaxb2-maven-plugin):
+  - `com.example.students.GetStudentRequest`
+  - `com.example.students.GetStudentResponse`
+  - `com.example.students.Student`
+  - `com.example.students.ObjectFactory`
+
+Try it: Example SOAP request/response
+1) Send a request to the service URL (`http://localhost:8081/ws`). Content-Type must be `text/xml` or `application/soap+xml`.
+
+- Request body:
+
+```xml
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:stu="http://example.com/students">
+  <soapenv:Header/>
+  <soapenv:Body>
+    <stu:getStudentRequest>
+      <stu:recordBook>12345</stu:recordBook>
+    </stu:getStudentRequest>
+  </soapenv:Body>
+</soapenv:Envelope>
+```
+
+- Expected response body (example):
+
+```xml
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:stu="http://example.com/students">
+  <soapenv:Header/>
+  <soapenv:Body>
+    <stu:getStudentResponse>
+      <stu:firstName>Иван</stu:firstName>
+      <stu:lastName>Иванов</stu:lastName>
+      <stu:faculty>ФКТИ</stu:faculty>
+      <stu:recordBook>12345</stu:recordBook>
+    </stu:getStudentResponse>
+  </soapenv:Body>
+</soapenv:Envelope>
+```
+
+Quick invocation examples
+- PowerShell (Windows):
+
+```powershell
+$body = @"
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:stu="http://example.com/students">
+  <soapenv:Header/>
+  <soapenv:Body>
+    <stu:getStudentRequest>
+      <stu:recordBook>12345</stu:recordBook>
+    </stu:getStudentRequest>
+  </soapenv:Body>
+</soapenv:Envelope>
+"@
+Invoke-WebRequest -Uri "http://localhost:8081/ws" -Method Post -ContentType "text/xml; charset=UTF-8" -Body $body
+```
+
+- curl (any OS):
+
+```sh
+curl -X POST "http://localhost:8081/ws" \
+     -H "Content-Type: text/xml; charset=UTF-8" \
+     --data-binary @- <<'XML'
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:stu="http://example.com/students">
+  <soapenv:Header/>
+  <soapenv:Body>
+    <stu:getStudentRequest>
+      <stu:recordBook>12345</stu:recordBook>
+    </stu:getStudentRequest>
+  </soapenv:Body>
+</soapenv:Envelope>
+XML
+```
+
+Notes and troubleshooting
+- SOAPAction header: Not required for this endpoint (Spring-WS routing is based on the payload root element and namespace).
+- WSDL address in different environments: `transformWsdlLocations(true)` ensures the `soap:address` in the WSDL reflects the host/port you used to fetch the WSDL.
+- If you get 404: Ensure you POST to `/ws` and not to `/ws/students.wsdl`.
+- If marshalling errors occur: Verify the XML uses the correct namespace (`http://example.com/students`) and element names exactly as defined in the XSD.
+
+Internal usage in this project
+- Service-S includes a `StudentRequestListener` that demonstrates programmatic SOAP invocation using Spring's `WebServiceTemplate`. It constructs `GetStudentRequest` and sends it to `http://localhost:8081/ws`, receiving `GetStudentResponse`. This pattern can be reused by other services.
