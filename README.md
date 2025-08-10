@@ -65,7 +65,7 @@ Stop and remove containers, network, but keep volumes:
 docker compose down
 ```
 
-This starts the following containers on a bridge network `ms_bridge_network`:
+This starts the following containers on a bridge network `microservices_ms_bridge_network`:
 - rabbitmq (ports 5672, 15672)
 - postgres (port 5432)
 - service-r (port 8080)
@@ -86,10 +86,10 @@ You can also run containers manually without Compose. The steps below create the
 ### 3.1 Create a shared network
 Create a bridge network so containers can resolve each other by name:
 ```
-docker network create ms_bridge_network
+docker network create microservices_ms_bridge_network
 ```
 
-Note: If you’re mixing with `docker compose`, it will create a network named `<folder>_ms_bridge_network` by default. If you want to join that network instead, replace `ms_bridge_network` accordingly.
+Note: If you’re mixing with `docker compose`, it will create a network named `<folder>_microservices_ms_bridge_network` by default. If you want to join that network instead, replace `microservices_ms_bridge_network` accordingly.
 
 ### 3.2 Start infrastructure
 RabbitMQ:
@@ -99,7 +99,7 @@ RabbitMQ:
 docker run \
   -d \
   --name rabbitmq \
-  --network ms_bridge_network \
+  --network microservices_ms_bridge_network \
   -p 5672:5672 \
   -p 15672:15672 \
   -e RABBITMQ_DEFAULT_USER=guest \
@@ -112,7 +112,7 @@ docker run \
 docker run `
   -d `
   --name rabbitmq `
-  --network ms_bridge_network `
+  --network microservices_ms_bridge_network `
   -p 5672:5672 `
   -p 15672:15672 `
   -e RABBITMQ_DEFAULT_USER=guest `
@@ -127,7 +127,7 @@ PostgreSQL:
 docker run \
   -d \
   --name postgres \
-  --network ms_bridge_network \
+  --network microservices_ms_bridge_network \
   -p 5432:5432 \
   -e POSTGRES_DB=students \
   -e POSTGRES_USER=students \
@@ -141,7 +141,7 @@ docker run \
 docker run `
   -d `
   --name postgres `
-  --network ms_bridge_network `
+  --network microservices_ms_bridge_network `
   -p 5432:5432 `
   -e POSTGRES_DB=students `
   -e POSTGRES_USER=students `
@@ -164,7 +164,7 @@ Service-R needs RabbitMQ and exposes port 8080 by default (overridable via SERVE
 ```
 docker run \
   --name service-r-test \
-  --network ms_bridge_network \
+  --network microservices_ms_bridge_network \
   -p 8083:8083 \
   -e SERVER_PORT=8083 \
   -e SPRING_RABBITMQ_HOST=rabbitmq \
@@ -175,7 +175,7 @@ docker run \
 ```
 docker run `
   --name service-r-test `
-  --network ms_bridge_network `
+  --network microservices_ms_bridge_network `
   -p 8083:8083 `
   -e SERVER_PORT=8083 `
   -e SPRING_RABBITMQ_HOST=rabbitmq `
@@ -194,7 +194,7 @@ Service-S needs both RabbitMQ and PostgreSQL. Default port is 8081, but we’ll 
 ```
 docker run \
   --name service-s-test \
-  --network ms_bridge_network \
+  --network microservices_ms_bridge_network \
   -p 8082:8082 \
   -e SERVER_PORT=8082 \
   -e SPRING_RABBITMQ_HOST=rabbitmq \
@@ -208,7 +208,7 @@ docker run \
 ```
 docker run `
   --name service-s-test `
-  --network ms_bridge_network `
+  --network microservices_ms_bridge_network `
   -p 8082:8082 `
   -e SERVER_PORT=8082 `
   -e SPRING_RABBITMQ_HOST=rabbitmq `
@@ -222,7 +222,7 @@ docker run `
 - List containers: `docker ps`
 - Show logs: `docker logs -f <container>`
 - Stop and remove a container: `docker rm -f <container>`
-- Remove the network: `docker network rm ms_bridge_network`
+- Remove the network: `docker network rm microservices_ms_bridge_network`
 - Remove volumes used above (if you created them): `docker volume rm postgres_data`
 
 ## 5) Notes
