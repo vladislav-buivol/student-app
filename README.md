@@ -295,6 +295,26 @@ Try it: Example SOAP request/response
 </soapenv:Envelope>
 ```
 
+Requested concise example
+- POST URL: http://localhost:8081/ws
+- Header: Content-Type: text/xml
+- Body:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                  xmlns:stu="http://example.com/students">
+  <soapenv:Header/>
+  <soapenv:Body>
+    <stu:getStudentRequest>
+      <stu:recordBook>RB-001</stu:recordBook>
+    </stu:getStudentRequest>
+  </soapenv:Body>
+</soapenv:Envelope>
+```
+
+Note: The WSDL is available at http://localhost:8081/ws/students.wsdl. Post SOAP requests to the service URL (/ws), not to the .wsdl URL.
+
 - Expected response body (example):
 
 ```xml
