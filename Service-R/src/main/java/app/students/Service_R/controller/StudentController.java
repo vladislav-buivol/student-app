@@ -20,14 +20,15 @@ public class StudentController {
 
     @GetMapping("/all")
     public String getAllStudents(@RequestBody String info) {
-        sender.sendGetAllRequest();
-        log.info("Received {}", info);
-        return info;
+        String response = sender.sendGetAllRequest();
+        log.info("StudentController.getAllStudents: RequestBody {}", info);
+        log.info("RequestBody {}", info);
+        return response;
     }
 
     @GetMapping()
     public String test() {
-        log.info("Received");
+        log.info("StudentController.test: Received");
         return "Received";
     }
 }

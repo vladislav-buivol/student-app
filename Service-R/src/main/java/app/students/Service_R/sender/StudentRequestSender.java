@@ -16,12 +16,13 @@ public class StudentRequestSender {
         logger.info("StudentRequestSender: Initializing StudentRequestSender");
     }
 
-    public void sendGetAllRequest() {
+    public String sendGetAllRequest() {
         logger.info("StudentRequestSender: Executing sendGetAllRequest");
-        rabbitTemplate.convertAndSend(
+        Object response = rabbitTemplate.convertSendAndReceive(
                 RabbitmqConfiguration.EXCHANGE_NAME,
                 "request.student.getAll",
                 "Message-sendGetAllRequest"
         );
+        return response != null ? response.toString() : "No response";
     }
 }
