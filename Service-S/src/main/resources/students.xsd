@@ -1,50 +1,25 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
            targetNamespace="http://example.com/students"
            xmlns:tns="http://example.com/students"
            elementFormDefault="qualified">
 
-    <!-- Запрос на получение студента -->
     <xs:element name="getStudentRequest">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="recordBook" type="xs:string" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="recordBook" type="xs:string"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
 
-    <!-- Ответ с данными студента -->
     <xs:element name="getStudentResponse">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="firstName" type="xs:string" minOccurs="1" maxOccurs="1"/>
-                <xs:element name="lastName" type="xs:string" minOccurs="1" maxOccurs="1"/>
-                <xs:element name="faculty" type="xs:string" minOccurs="1" maxOccurs="1"/>
-                <xs:element name="recordBook" type="xs:string" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="firstName" type="xs:string"/>
+                <xs:element name="lastName" type="xs:string"/>
+                <xs:element name="faculty" type="xs:string"/>
+                <xs:element name="recordBook" type="xs:string"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
-
-    <!-- Запрос на получение всех студентов -->
-    <xs:element name="getAllStudentsRequest" type="xs:anyType"/>
-
-    <!-- Ответ с массивом студентов -->
-    <xs:element name="getAllStudentsResponse">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element name="student" type="tns:student" minOccurs="0" maxOccurs="unbounded"/>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
-
-    <!-- Тип Student -->
-    <xs:complexType name="student">
-        <xs:sequence>
-            <xs:element name="firstName" type="xs:string"/>
-            <xs:element name="lastName" type="xs:string"/>
-            <xs:element name="faculty" type="xs:string"/>
-            <xs:element name="recordBook" type="xs:string"/>
-        </xs:sequence>
-    </xs:complexType>
 
 </xs:schema>

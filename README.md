@@ -373,3 +373,59 @@ Notes and troubleshooting
 
 Internal usage in this project
 - Service-S includes a `StudentRequestListener` that demonstrates programmatic SOAP invocation using Spring's `WebServiceTemplate`. It constructs `GetStudentRequest` and sends it to `http://localhost:8081/ws`, receiving `GetStudentResponse`. This pattern can be reused by other services.
+
+
+## 7) Publish students-soap-client to Nexus (artifact repository)
+
+This project includes a small client module (`students-soap-client`) that contains the JAXB classes generated from the Service-S XSD. To publish this client JAR to a Nexus repository so it can be reused by other services, follow the steps below.
+
+1) Copy generated XSD classes into students-soap-client
+- Generate the JAXB classes in Service-S (they are typically generated during build):
+  - After building Service-S, look under:
+    - Service-S/target/generated-sources/jaxb/com/example/students
+- Copy the Java classes from that folder into the client module at:
+  - students-soap-client/src/main/java/com/example/students
+- If those files already exist in the client module, overwrite or update them accordingly.
+
+2) Build the client JAR
+- From the project root (or inside the module folder), run:
+```
+# From project root
+mvn -f students-soap-client/pom.xml clean package
+```
+- This should produce:
+  - students-soap-client/target/students-soap-client-1.0.0.jar
+
+3) Configure Maven settings for Nexus credentials
+- Edit (or create) your Maven settings.xml, usually located at:
+  - Windows: %USERPROFILE%\.m2\settings.xml
+  - Linux/macOS: ~/.m2/settings.xml
+- Add the following server configuration (adjust username/password to your Nexus):
+```
+<settings>
+  <servers>
+    <server>
+      <id>nexus</id>
+      <username>admin</username>
+      <password>password</password>
+    </server>
+  </servers>
+</settings>
+```
+
+4) Deploy the JAR to Nexus using Maven deploy-file
+- Open a terminal and navigate to the client module folder:
+```
+cd students-soap-client
+```
+- Execute the deploy command (Windows PowerShell example provided in the issue):
+```
+mvn deploy:deploy-file -DgroupId="com.example" -DartifactId=students-soap-client -Dversion="1.0.0" -Dpackaging=jar -Dfile="C:\projects\Microservices\students-soap-client\target\students-soap-client-1.0.0.jar" -DrepositoryId=nexus -Durl="http://172.28.17.185:8081/repository/microservices-soap-service-r/"
+```
+
+Notes
+- Ensure the -Dfile path points to the JAR you just built.
+- repositoryId must match the <id> in your settings.xml server entry ("nexus" in the example).
+- Update -Dversion and the JAR filename if you use a different version in your pom.xml.
+- Replace the -Durl value with your Nexus repository URL if it differs from the example.
+- If your Nexus requires HTTPS or a different repository (hosted vs. snapshot), adjust accordingly.

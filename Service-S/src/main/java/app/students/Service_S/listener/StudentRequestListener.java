@@ -8,6 +8,7 @@ import jakarta.xml.bind.JAXBException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.ws.client.core.WebServiceTemplate;
 
@@ -18,24 +19,26 @@ public class StudentRequestListener {
     private final Logger logger = LoggerFactory.getLogger(StudentRequestListener.class);
     private final WebServiceTemplate wsTemplate;
 
+    @Value("${service-s.wsEndpoint}")
+    private String wsEndpoint;
+
     public StudentRequestListener(WebServiceTemplate wsTemplate) {
         this.wsTemplate = wsTemplate;
         logger.info("StudentRequestListener: Rabbitmq configuration initialized");
     }
 
     @RabbitListener(queues = RabbitmqConfiguration.REQUEST_QUEUE)
-    public String handleRequest(String message) throws JAXBException {
-        logger.info("handleRequest: Received request {}", message);
+    public String handleRequest(String recordBook) throws JAXBException {
+        logger.info("handleRequest: received recordBook={}", recordBook);
 
-        // Создаём SOAP-запрос
+        // SOAP-запрос к своему же endpoint
         GetStudentRequest req = new GetStudentRequest();
-        req.setRecordBook("12345"); // пример данных
+        req.setRecordBook(recordBook);
 
-        // Отправляем SOAP-запрос и получаем SOAP-ответ
-        GetStudentResponse resp = (GetStudentResponse)
-                wsTemplate.marshalSendAndReceive("http://localhost:8081/ws", req);
+        GetStudentResponse resp = (GetStudentResponse) wsTemplate
+                .marshalSendAndReceive(wsEndpoint, req);
 
-        // Превращаем ответ в XML для RabbitMQ
+        // Превращаем в XML
         JAXBContext ctx = JAXBContext.newInstance(GetStudentResponse.class);
         StringWriter writer = new StringWriter();
         ctx.createMarshaller().marshal(resp, writer);

@@ -68,7 +68,14 @@ services:
       - postgres
     networks:
       - ms_bridge_network
-
+  nexus:
+    image: sonatype/nexus3:3.68.1
+    container_name: nexus
+    ports:
+      - "${NEXUS_PORT}:${NEXUS_PORT}"
+    volumes:
+      - nexus-data:/nexus-data
+    restart: always
 networks:
   ms_bridge_network:
     driver: bridge
@@ -76,3 +83,4 @@ networks:
 volumes:
   postgres_data:
   rabbitmq_data:
+  nexus-data:

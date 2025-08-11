@@ -15,13 +15,11 @@ public class StudentSoapEndpoint {
     @PayloadRoot(namespace = NAMESPACE_URI, localPart = "getStudentRequest")
     @ResponsePayload
     public GetStudentResponse getStudent(@RequestPayload GetStudentRequest request) {
-        // хардкодим ответ, имитация БД
-        GetStudentResponse response = new GetStudentResponse();
-        response.setFirstName("Иван");
-        response.setLastName("Иванов");
-        response.setFaculty("ФКТИ");
-        response.setRecordBook(request.getRecordBook());
-        return response;
-
+        GetStudentResponse resp = new GetStudentResponse();
+        resp.setFirstName("Иван");
+        resp.setLastName("Иванов");
+        resp.setFaculty("ФКТИ");
+        resp.setRecordBook(request.getRecordBook());
+        return resp;
     }
 }

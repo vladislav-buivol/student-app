@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitmqConfiguration {
     public static final String EXCHANGE_NAME = "student.data.exchange";
-    public static final String QUEUE_NAME = "student.response.queue";
+    public static final String RESPONSE_QUEUE = "student.response.queue";
 
     @Bean
     public TopicExchange topicExchange() {
@@ -19,7 +19,7 @@ public class RabbitmqConfiguration {
 
     @Bean
     public Queue responseQueue() {
-        return new Queue(QUEUE_NAME);
+        return new Queue(RESPONSE_QUEUE);
     }
 
     @Bean

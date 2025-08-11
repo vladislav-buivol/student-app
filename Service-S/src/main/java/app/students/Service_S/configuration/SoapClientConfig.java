@@ -10,7 +10,7 @@ public class SoapClientConfig {
     @Bean
     public Jaxb2Marshaller marshaller() {
         Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
-        marshaller.setContextPath("com.example.students");
+        marshaller.setContextPath("com.example.students"); // пакет с JAXB-классами
         return marshaller;
     }
 
