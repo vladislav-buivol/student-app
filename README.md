@@ -415,12 +415,13 @@ mvn -f students-soap-client/pom.xml clean package
 
 4) Deploy the JAR to Nexus using Maven deploy-file
 - Open a terminal and navigate to the client module folder:
+- create repository in nexus (maven2 hosted) or deploy dependency to local repository
 ```
 cd students-soap-client
 ```
 - Execute the deploy command (Windows PowerShell example provided in the issue):
 ```
-mvn deploy:deploy-file -DgroupId="com.example" -DartifactId=students-soap-client -Dversion="1.0.0" -Dpackaging=jar -Dfile="C:\projects\Microservices\students-soap-client\target\students-soap-client-1.0.0.jar" -DrepositoryId=nexus -Durl="http://172.28.17.185:8081/repository/microservices-soap-service-r/"
+mvn deploy:deploy-file -DgroupId="com.example" -DartifactId=students-soap-client -Dversion="1.0.0" -Dpackaging=jar -Dfile="C:\projects\Microservices\students-soap-client-dependency\target\students-soap-client-1.0.0.jar" -DrepositoryId=nexus -Durl="http://10.13.31.13:8081/repository/microservices-soap-service-r/"
 ```
 
 Notes
