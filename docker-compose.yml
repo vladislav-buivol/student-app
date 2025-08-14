@@ -10,6 +10,11 @@ services:
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
     volumes:
       - 'rabbitmq_data:/var/lib/rabbitmq'
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics","ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
     networks:
       - ms_bridge_network
 
@@ -24,6 +29,11 @@ services:
       - "${PG_PORT}:${PG_PORT}"
     volumes:
       - 'postgres_data:/var/lib/postgresql/data'
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
     networks:
       - ms_bridge_network
 
@@ -31,6 +41,11 @@ services:
     container_name: service-r
     build:
       context: ./Service-R
+      args:
+        NEXUS_USER: ${NEXUS_USER}
+        NEXUS_PASSWORD: ${NEXUS_PASSWORD}
+        NEXUS_HOST: ${NEXUS_HOST}
+        NEXUS_PORT: ${NEXUS_PORT}
     env_file:
       - .env
     restart: always
@@ -41,7 +56,6 @@ services:
       - "${SERVICE_R_PORT}:${SERVICE_R_PORT}"
     depends_on:
       - rabbitmq
-      - postgres
     networks:
       - ms_bridge_network
 
@@ -64,8 +78,10 @@ services:
     ports:
       - "${SERVICE_S_PORT}:${SERVICE_S_PORT}"
     depends_on:
-      - rabbitmq
-      - postgres
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     networks:
       - ms_bridge_network
   nexus:

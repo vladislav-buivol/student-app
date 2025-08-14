@@ -2,17 +2,16 @@
     <servers>
         <server>
             <id>nexus</id>
-            <username>${env.NEXUS_USER}</username>
-            <password>${env.NEXUS_PASSWORD}</password>
+            <username>${NEXUS_USER}</username>
+            <password>${NEXUS_PASSWORD}</password>
         </server>
-
     </servers>
 
     <mirrors>
         <mirror>
             <id>nexus</id>
-            <mirrorOf>*,!central</mirrorOf> <!-- исключаем Maven Central -->
-            <url>http://10.13.31.13:8081/repository/microservices-soap-service-r/</url>
+            <mirrorOf>*,!central</mirrorOf>
+            <url>http://${NEXUS_HOST}:${NEXUS_PORT}/repository/microservices-soap-service-r/</url>
         </mirror>
     </mirrors>
 </settings>

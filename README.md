@@ -14,6 +14,25 @@ You can run everything with Docker Compose, or run each service individually wit
 - Docker and Docker Compose installed
 - (Optional) Maven and JDK 21 if you want to run locally without Docker
 
+## Quick start (required steps)
+
+Follow these steps in order to successfully build and run the project containers:
+
+1. Build and publish students-soap-client-dependency (required by Service-R). You have two options:
+   - Option A (local development without Docker): install to your local Maven repo
+     - mvn -f students-soap-client-dependency/pom.xml clean install
+   - Option B (recommended for Docker builds): deploy to a Nexus repository that the Docker build can reach
+     - Build the JAR: mvn -f students-soap-client-dependency/pom.xml clean package
+     - Create (or use) a hosted Maven repository in Nexus and deploy the JAR there (see section "7) Prepare students-soap-client-dependency").
+2. Configure Maven credentials for Docker builds
+   - Edit Service-R/settings.xml and set your Nexus <username>, <password> and <url>.
+   - Service-R Dockerfile copies this file into the Maven build container at /root/.m2/settings.xml.
+   - Optionally, align Service-R/pom.xml <repositories><repository id="nexus"> URL with your Nexus if you are not using a mirror.
+   - Alternatively, you can mount or bake in a different settings.xml, but the default flow expects Service-R/settings.xml to be correct before building the image.
+   - Do not commit real credentials to VCS; keep settings.xml changes local.
+3. Start containers
+   - Create a .env (see next section) and then run: docker compose up -d --build
+
 ## 1) Configuration via .env
 Docker Compose is configured to read a `.env` file from the project root. Create a new file named `.env` next to `docker-compose.yml` with the following content (you can adjust values as needed):
 
@@ -33,15 +52,24 @@ PG_PORT=5432
 # Services
 SERVICE_R_PORT=8080
 SERVICE_S_PORT=8081
+
+# Nexus (port exposed by the Nexus container in docker-compose)
+# Choose a port that does NOT conflict with SERVICE_S_PORT on the host.
+# For example, if SERVICE_S_PORT=8081, use NEXUS_PORT=8085
+NEXUS_PORT=8085
 ```
 
 Notes:
 - RabbitMQ management UI will be available on http://localhost:15672 (user/pass as above).
 - Postgres will be available on localhost:5432.
+- Nexus UI (if enabled in docker-compose) will be at http://localhost:%NEXUS_PORT% (e.g., http://localhost:8085). Create a hosted Maven repository to deploy the students-soap-client artifact.
+- Avoid port conflicts: ensure NEXUS_PORT differs from SERVICE_S_PORT on the host.
 - You can change ports and credentials if needed.
 
 ## 2) Run everything with Docker Compose
 From the project root:
+
+Important: Ensure the dependency com.example:students-soap-client:1.0.0 is available in your Nexus (and Service-R/settings.xml points to it) before building, otherwise the Service-R image build will fail.
 
 Build images and start all services (in the background):
 
@@ -65,7 +93,7 @@ Stop and remove containers, network, but keep volumes:
 docker compose down
 ```
 
-This starts the following containers on a bridge network `microservices_ms_bridge_network`:
+This starts the following containers on a bridge network named by Docker Compose (typically `<folder>_ms_bridge_network`):
 - rabbitmq (ports 5672, 15672)
 - postgres (port 5432)
 - service-r (port 8080)
@@ -375,26 +403,26 @@ Internal usage in this project
 - Service-S includes a `StudentRequestListener` that demonstrates programmatic SOAP invocation using Spring's `WebServiceTemplate`. It constructs `GetStudentRequest` and sends it to `http://localhost:8081/ws`, receiving `GetStudentResponse`. This pattern can be reused by other services.
 
 
-## 7) Publish students-soap-client to Nexus (artifact repository)
+## 7) Prepare students-soap-client-dependency (required by Service-R)
 
-This project includes a small client module (`students-soap-client`) that contains the JAXB classes generated from the Service-S XSD. To publish this client JAR to a Nexus repository so it can be reused by other services, follow the steps below.
+This project includes a small client module folder named `students-soap-client-dependency` (artifactId: `students-soap-client`) that contains the JAXB classes generated from the Service-S XSD. To publish this client JAR to a Nexus repository (or install locally for non-Docker runs) so it can be reused by other services, follow the steps below.
 
 1) Copy generated XSD classes into students-soap-client
 - Generate the JAXB classes in Service-S (they are typically generated during build):
   - After building Service-S, look under:
     - Service-S/target/generated-sources/jaxb/com/example/students
 - Copy the Java classes from that folder into the client module at:
-  - students-soap-client/src/main/java/com/example/students
+  - students-soap-client-dependency/src/main/java/com/example/students
 - If those files already exist in the client module, overwrite or update them accordingly.
 
 2) Build the client JAR
 - From the project root (or inside the module folder), run:
 ```
 # From project root
-mvn -f students-soap-client/pom.xml clean package
+mvn -f students-soap-client-dependency/pom.xml clean package
 ```
 - This should produce:
-  - students-soap-client/target/students-soap-client-1.0.0.jar
+  - students-soap-client-dependency/target/students-soap-client-1.0.0.jar
 
 3) Configure Maven settings for Nexus credentials
 - Edit (or create) your Maven settings.xml, usually located at:
@@ -415,13 +443,13 @@ mvn -f students-soap-client/pom.xml clean package
 
 4) Deploy the JAR to Nexus using Maven deploy-file
 - Open a terminal and navigate to the client module folder:
-- create repository in nexus (maven2 hosted) or deploy dependency to local repository
+- Create a hosted Maven repository in Nexus (type: maven2 hosted), or skip Nexus and install locally if you are not using Docker.
 ```
-cd students-soap-client
+cd students-soap-client-dependency
 ```
 - Execute the deploy command (Windows PowerShell example provided in the issue):
 ```
-mvn deploy:deploy-file -DgroupId="com.example" -DartifactId=students-soap-client -Dversion="1.0.0" -Dpackaging=jar -Dfile="C:\projects\Microservices\students-soap-client-dependency\target\students-soap-client-1.0.0.jar" -DrepositoryId=nexus -Durl="http://10.13.31.13:8081/repository/microservices-soap-service-r/"
+mvn deploy:deploy-file -DgroupId="com.example" -DartifactId=students-soap-client -Dversion="1.0.0" -Dpackaging=jar -Dfile="\target\students-soap-client-1.0.0.jar" -DrepositoryId=nexus -Durl="http://localhost:%NEXUS_PORT%/repository/<your-hosted-repo>/"
 ```
 
 Notes
@@ -430,3 +458,4 @@ Notes
 - Update -Dversion and the JAR filename if you use a different version in your pom.xml.
 - Replace the -Durl value with your Nexus repository URL if it differs from the example.
 - If your Nexus requires HTTPS or a different repository (hosted vs. snapshot), adjust accordingly.
+- Alternative (local only, not for Docker builds): mvn -f students-soap-client-dependency/pom.xml clean install, then run Service-R locally (outside Docker) so it can resolve from your local Maven cache.

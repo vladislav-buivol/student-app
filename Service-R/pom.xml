@@ -73,14 +73,22 @@
         <repository>
             <id>central</id>
             <url>https://repo.maven.apache.org/maven2/</url>
-            <releases><enabled>true</enabled></releases>
-            <snapshots><enabled>false</enabled></snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository>
         <repository>
             <id>nexus</id>
-            <url>http://10.13.31.13:8081/repository/microservices-soap-service-r/</url>
-            <releases><enabled>true</enabled></releases>
-            <snapshots><enabled>true</enabled></snapshots>
+            <url>http://${env.NEXUS_HOST}:${env.NEXUS_PORT}/repository/microservices-soap-service-r/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
         </repository>
     </repositories>
 
