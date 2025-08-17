@@ -4,9 +4,6 @@ WORKDIR /app
 
 # Accept build arguments with defaults
 ARG NEXUS_HOST=localhost
-ARG NEXUS_PORT=8081
-ARG NEXUS_USER=admin
-ARG NEXUS_PASSWORD=admin
 
 # Copy settings.xml template with placeholders
 COPY settings.xml /root/.m2/settings.xml
