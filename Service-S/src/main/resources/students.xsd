@@ -22,4 +22,29 @@
         </xs:complexType>
     </xs:element>
 
+    <!-- Get all students request (no fields needed, just an empty request) -->
+    <xs:element name="getAllStudentsRequest">
+        <xs:complexType>
+            <xs:sequence/>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- Get all students response -->
+    <xs:element name="getAllStudentsResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="student" type="tns:studentData" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- Student type definition -->
+    <xs:complexType name="studentData">
+        <xs:sequence>
+            <xs:element name="firstName" type="xs:string"/>
+            <xs:element name="lastName" type="xs:string"/>
+            <xs:element name="faculty" type="xs:string"/>
+            <xs:element name="recordBook" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
 </xs:schema>

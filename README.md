@@ -451,6 +451,10 @@ cd students-soap-client-dependency
 ```
 mvn deploy:deploy-file -DgroupId="com.example" -DartifactId=students-soap-client -Dversion="1.0.0" -Dpackaging=jar -Dfile="\target\students-soap-client-1.0.0.jar" -DrepositoryId=nexus -Durl="http://%NEXUS_PORT%/repository/<your-hosted-repo>/"
 ```
+E.g
+```
+mvn deploy:deploy-file -DgroupId="com.example" -DartifactId=students-soap-client -Dversion="1.0.0" -Dpackaging=jar -Dfile="C:\projects\Microservices\students-soap-client-dependency\target\students-soap-client-1.0.0.jar" -DrepositoryId=nexus -Durl="http://10.13.31.13:8081/repository/microservices-soap-service-r/"
+```
 
 Notes
 - Ensure the -Dfile path points to the JAR you just built.

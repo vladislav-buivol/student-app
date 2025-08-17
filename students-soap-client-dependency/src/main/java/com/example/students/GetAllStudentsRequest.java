@@ -10,7 +10,6 @@ package com.example.students;
 
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
 
@@ -25,7 +24,6 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;complexContent&gt;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *       &lt;sequence&gt;
- *         &lt;element name="recordBook" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
  *       &lt;/sequence&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;
@@ -35,37 +33,9 @@ import jakarta.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "recordBook"
-})
-@XmlRootElement(name = "getStudentRequest")
-public class GetStudentRequest {
+@XmlType(name = "")
+@XmlRootElement(name = "getAllStudentsRequest")
+public class GetAllStudentsRequest {
 
-    @XmlElement(required = true)
-    protected String recordBook;
-
-    /**
-     * Gets the value of the recordBook property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getRecordBook() {
-        return recordBook;
-    }
-
-    /**
-     * Sets the value of the recordBook property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setRecordBook(String value) {
-        this.recordBook = value;
-    }
 
 }

@@ -8,6 +8,8 @@
 
 package com.example.students;
 
+import java.util.ArrayList;
+import java.util.List;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
@@ -25,7 +27,7 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;complexContent&gt;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *       &lt;sequence&gt;
- *         &lt;element name="recordBook" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *         &lt;element name="student" type="{http://example.com/students}studentData" maxOccurs="unbounded"/&gt;
  *       &lt;/sequence&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;
@@ -36,36 +38,41 @@ import jakarta.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
-    "recordBook"
+    "student"
 })
-@XmlRootElement(name = "getStudentRequest")
-public class GetStudentRequest {
+@XmlRootElement(name = "getAllStudentsResponse")
+public class GetAllStudentsResponse {
 
     @XmlElement(required = true)
-    protected String recordBook;
+    protected List<StudentData> student;
 
     /**
-     * Gets the value of the recordBook property.
+     * Gets the value of the student property.
      * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getRecordBook() {
-        return recordBook;
-    }
-
-    /**
-     * Sets the value of the recordBook property.
+     * <p>
+     * This accessor method returns a reference to the live list,
+     * not a snapshot. Therefore any modification you make to the
+     * returned list will be present inside the Jakarta XML Binding object.
+     * This is why there is not a <CODE>set</CODE> method for the student property.
      * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * <p>
+     * For example, to add a new item, do as follows:
+     * <pre>
+     *    getStudent().add(newItem);
+     * </pre>
+     * 
+     * 
+     * <p>
+     * Objects of the following type(s) are allowed in the list
+     * {@link StudentData }
+     * 
+     * 
      */
-    public void setRecordBook(String value) {
-        this.recordBook = value;
+    public List<StudentData> getStudent() {
+        if (student == null) {
+            student = new ArrayList<StudentData>();
+        }
+        return this.student;
     }
 
 }

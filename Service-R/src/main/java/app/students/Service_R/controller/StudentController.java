@@ -1,16 +1,20 @@
 package app.students.Service_R.controller;
 
 import app.students.Service_R.sender.StudentRequestSender;
-import com.fasterxml.jackson.databind.JsonNode;
+import com.example.students.GetAllStudentsResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Unmarshaller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
+import java.io.StringReader;
 
 @RestController
 @RequestMapping("/students")
@@ -26,21 +30,20 @@ public class StudentController {
         this.objectMapper = new ObjectMapper();
     }
 
-
-    @GetMapping("/all")
-    public String getAllStudents(@RequestBody String info) throws Exception {
-        String xmlResponse = sender.sendGetAllRequest();
-        log.info("StudentController.getAllStudents: RequestBody {}", info);
-        log.info("RequestBody {}", info);
-        log.info("Response {}", xmlResponse);
-        JsonNode jsonNode = xmlMapper.readTree(xmlResponse.getBytes());
-
-        return objectMapper.writeValueAsString(jsonNode);
-    }
-
-    @GetMapping()
-    public String test() {
-        log.info("StudentController.test: Received");
-        return "Received";
+    @PostMapping("/all")
+    public String getAllStudents() throws IOException, JAXBException {
+        //TODO logic move to service
+        log.info("StudentController.getAllStudents()");
+        String soapResponse = sender.sendGetAllRequest();
+        log.info("StudentController.test: Received {}", soapResponse);
+        JAXBContext ctx = JAXBContext.newInstance(GetAllStudentsResponse.class);
+        Unmarshaller unmarshaller = ctx.createUnmarshaller();
+        GetAllStudentsResponse response = (GetAllStudentsResponse) unmarshaller.unmarshal(new StringReader(soapResponse));
+        // Convert Java object to JSON
+        try {
+            return objectMapper.writeValueAsString(response);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to convert response to JSON", e);
+        }
     }
 }

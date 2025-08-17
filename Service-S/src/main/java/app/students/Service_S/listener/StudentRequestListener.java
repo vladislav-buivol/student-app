@@ -1,8 +1,8 @@
 package app.students.Service_S.listener;
 
 import app.students.Service_S.configuration.RabbitmqConfiguration;
-import com.example.students.GetStudentRequest;
-import com.example.students.GetStudentResponse;
+import com.example.students.GetAllStudentsRequest;
+import com.example.students.GetAllStudentsResponse;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import org.slf4j.Logger;
@@ -28,18 +28,20 @@ public class StudentRequestListener {
     }
 
     @RabbitListener(queues = RabbitmqConfiguration.REQUEST_QUEUE)
-    public String handleRequest(String recordBook) throws JAXBException {
-        logger.info("handleRequest: received recordBook={}", recordBook);
+    public String handleGetAllRequest(String payload) throws JAXBException {
+        logger.info("handleGetAllRequest:");
+        // SOAP request to its own endpoint
+        GetAllStudentsRequest getAllStudentsRequest = new GetAllStudentsRequest();
+        GetAllStudentsResponse resp = (GetAllStudentsResponse) wsTemplate
+                .marshalSendAndReceive(wsEndpoint, getAllStudentsRequest);
+        return convertToxml(resp);
+    }
 
-        // SOAP-запрос к своему же endpoint
-        GetStudentRequest req = new GetStudentRequest();
-        req.setRecordBook(recordBook);
-
-        GetStudentResponse resp = (GetStudentResponse) wsTemplate
-                .marshalSendAndReceive(wsEndpoint, req);
-
-        // Превращаем в XML
-        JAXBContext ctx = JAXBContext.newInstance(GetStudentResponse.class);
+    /**
+     * Convert to xml XML
+     */
+    private String convertToxml(GetAllStudentsResponse resp) throws JAXBException {
+        JAXBContext ctx = JAXBContext.newInstance(GetAllStudentsResponse.class);
         StringWriter writer = new StringWriter();
         ctx.createMarshaller().marshal(resp, writer);
 
