@@ -55,14 +55,14 @@ SERVICE_S_PORT=8081
 
 # Nexus (port exposed by the Nexus container in docker-compose)
 # Choose a port that does NOT conflict with SERVICE_S_PORT on the host.
-# For example, if SERVICE_S_PORT=8081, use NEXUS_PORT=8085
-NEXUS_PORT=8085
+# For example, if SERVICE_S_PORT=8084, use NEXUS_PORT=8081
+NEXUS_PORT=8081
 ```
 
 Notes:
 - RabbitMQ management UI will be available on http://localhost:15672 (user/pass as above).
 - Postgres will be available on localhost:5432.
-- Nexus UI (if enabled in docker-compose) will be at http://localhost:%NEXUS_PORT% (e.g., http://localhost:8085). Create a hosted Maven repository to deploy the students-soap-client artifact.
+- Nexus UI (if enabled in docker-compose) will be at http://%NEXUS_HOST% (e.g., http://localhost:8081). Create a hosted Maven repository to deploy the students-soap-client artifact.
 - Avoid port conflicts: ensure NEXUS_PORT differs from SERVICE_S_PORT on the host.
 - You can change ports and credentials if needed.
 
@@ -449,7 +449,7 @@ cd students-soap-client-dependency
 ```
 - Execute the deploy command (Windows PowerShell example provided in the issue):
 ```
-mvn deploy:deploy-file -DgroupId="com.example" -DartifactId=students-soap-client -Dversion="1.0.0" -Dpackaging=jar -Dfile="\target\students-soap-client-1.0.0.jar" -DrepositoryId=nexus -Durl="http://localhost:%NEXUS_PORT%/repository/<your-hosted-repo>/"
+mvn deploy:deploy-file -DgroupId="com.example" -DartifactId=students-soap-client -Dversion="1.0.0" -Dpackaging=jar -Dfile="\target\students-soap-client-1.0.0.jar" -DrepositoryId=nexus -Durl="http://%NEXUS_PORT%/repository/<your-hosted-repo>/"
 ```
 
 Notes

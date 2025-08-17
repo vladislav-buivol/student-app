@@ -16,8 +16,7 @@ COPY pom.xml .
 COPY src ./src
 
 # Replace placeholders in settings.xml with build arguments
-RUN sed -i "s|\${NEXUS_HOST}|$NEXUS_HOST|g" /root/.m2/settings.xml \
- && sed -i "s|\${NEXUS_PORT}|$NEXUS_PORT|g" /root/.m2/settings.xml
+RUN sed -i "s|\${NEXUS_HOST}|$NEXUS_HOST|g" /root/.m2/settings.xml
 
 # Build the project
 RUN mvn -B -s /root/.m2/settings.xml clean package -DskipTests

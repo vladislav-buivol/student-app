@@ -11,7 +11,7 @@
         <mirror>
             <id>nexus</id>
             <mirrorOf>*,!central</mirrorOf>
-            <url>http://${NEXUS_HOST}:${NEXUS_PORT}/repository/microservices-soap-service-r/</url>
+            <url>http://${NEXUS_HOST}/repository/microservices-soap-service-r/</url>
         </mirror>
     </mirrors>
 </settings>

@@ -82,7 +82,7 @@
         </repository>
         <repository>
             <id>nexus</id>
-            <url>http://${env.NEXUS_HOST}:${env.NEXUS_PORT}/repository/microservices-soap-service-r/</url>
+            <url>http://${env.NEXUS_HOST}/repository/microservices-soap-service-r/</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
