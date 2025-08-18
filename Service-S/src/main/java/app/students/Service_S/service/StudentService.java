@@ -5,7 +5,6 @@ import app.students.Service_S.respository.StudentRepository;
 import com.example.students.StudentData;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -17,8 +16,17 @@ public class StudentService {
     }
 
     public List<StudentData> getAllStudents() {
-        List<Student> students = studentRepository.findAll();
-        return mapStudents(students);
+        return studentRepository
+                .findAll()
+                .stream().map(this::mapStudent)
+                .toList();
+    }
+
+    public StudentData getStudentByRecordBook(String recordBook) {
+        return studentRepository
+                .findByRecordBook(recordBook)
+                .map(this::mapStudent)
+                .orElse(null);
     }
 
     private StudentData mapStudent(Student students) {
@@ -28,13 +36,5 @@ public class StudentService {
         sd.setFaculty(students.getFaculty());
         sd.setRecordBook(students.getRecordBook());
         return sd;
-    }
-
-    private List<StudentData> mapStudents(List<Student> students) {
-        List<StudentData> sds = new ArrayList<>();
-        for (Student student : students) {
-            sds.add(mapStudent(student));
-        }
-        return sds;
     }
 }

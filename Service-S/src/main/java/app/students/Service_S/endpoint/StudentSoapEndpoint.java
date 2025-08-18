@@ -22,11 +22,14 @@ public class StudentSoapEndpoint {
     @PayloadRoot(namespace = NAMESPACE_URI, localPart = "getStudentRequest")
     @ResponsePayload
     public GetStudentResponse getStudent(@RequestPayload GetStudentRequest request) {
+        StudentData studentData = studentService.getStudentByRecordBook(request.getRecordBook());
         GetStudentResponse resp = new GetStudentResponse();
-        resp.setFirstName("HARDCODED");
-        resp.setLastName("HARDCODED");
-        resp.setFaculty("HARDCODED");
-        resp.setRecordBook(request.getRecordBook());
+        if (studentData != null) {
+            resp.setFirstName(studentData.getFirstName());
+            resp.setLastName(studentData.getLastName());
+            resp.setFaculty(studentData.getFaculty());
+            resp.setRecordBook(request.getRecordBook());
+        }
         return resp;
     }
 
