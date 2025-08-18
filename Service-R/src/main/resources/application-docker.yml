@@ -1,0 +1,6 @@
+server:
+  port: ${SERVICE_R_PORT}
+spring:
+  rabbitmq:
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_AMQP_PORT}

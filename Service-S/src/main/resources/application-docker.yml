@@ -13,4 +13,10 @@ spring:
     enabled: true
     locations: classpath:db/migration
     baseline-on-migrate: true
-
+  rabbitmq:
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_AMQP_PORT}
+server:
+  port: ${SERVICE_S_PORT}
+service-s:
+  wsEndpoint: ${WS_ENDPOINT}

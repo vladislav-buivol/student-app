@@ -18,7 +18,7 @@ WORKDIR /app
 COPY --from=builder /app/target/*.jar /app/app.jar
 
 # Default Spring Boot port for this service (can be overridden by SERVER_PORT env)
-EXPOSE 8081
+EXPOSE ${SERVICE_S_PORT}
 
 # Allow passing JVM opts via env
 ENV JAVA_OPTS=""

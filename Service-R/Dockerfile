@@ -24,7 +24,7 @@ WORKDIR /app
 
 COPY --from=builder /app/target/*.jar /app/app.jar
 
-EXPOSE 8080
+EXPOSE ${SERVICE_R_PORT}
 ENV JAVA_OPTS=""
 
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar /app/app.jar"]
