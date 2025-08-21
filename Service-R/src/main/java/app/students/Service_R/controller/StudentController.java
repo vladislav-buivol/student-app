@@ -23,13 +23,13 @@ public class StudentController {
 
     @PostMapping("/all")
     public GetAllStudentsResponse getAllStudents() {
-        log.info("StudentRequestListener: Rabbitmq configuration received");
+        log.info("In StudentController.getAllStudents()");
         return sender.requestAllStudents();
     }
 
     @PostMapping("/find")
-    public GetStudentResponse findStudentById(@RequestBody GetStudentRequest request) {
-        log.info("StudentController.findStudentById({})", request);
+    public GetStudentResponse findStudentByRecordBook(@RequestBody GetStudentRequest request) {
+        log.info("StudentController.findStudentByRecordBook({})", request);
         return sender.sendGetStudentRequest(request);
     }
 }
