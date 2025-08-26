@@ -18,6 +18,8 @@
                 <xs:element name="lastName" type="xs:string"/>
                 <xs:element name="faculty" type="xs:string"/>
                 <xs:element name="recordBook" type="xs:string"/>
+                <xs:element name="createdAt" type="xs:date"/>
+                <xs:element name="profileImageUrl" type="xs:string"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -45,6 +47,8 @@
             <xs:element name="lastName" type="xs:string"/>
             <xs:element name="faculty" type="xs:string"/>
             <xs:element name="recordBook" type="xs:string"/>
+            <xs:element name="createdAt" type="xs:date"/>
+            <xs:element name="profileImageUrl" type="xs:string"/>
         </xs:sequence>
     </xs:complexType>
 </xs:schema>

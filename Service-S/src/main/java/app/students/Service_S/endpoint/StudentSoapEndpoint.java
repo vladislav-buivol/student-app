@@ -28,7 +28,9 @@ public class StudentSoapEndpoint {
             resp.setFirstName(studentData.getFirstName());
             resp.setLastName(studentData.getLastName());
             resp.setFaculty(studentData.getFaculty());
-            resp.setRecordBook(request.getRecordBook());
+            resp.setRecordBook(studentData.getRecordBook());
+            resp.setCreatedAt(studentData.getCreatedAt());
+            resp.setProfileImageUrl(studentData.getProfileImageUrl());
         }
         return resp;
     }
