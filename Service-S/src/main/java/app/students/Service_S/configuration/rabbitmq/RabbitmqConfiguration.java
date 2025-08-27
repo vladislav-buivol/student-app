@@ -1,4 +1,4 @@
-package app.students.Service_S.configuration;
+package app.students.Service_S.configuration.rabbitmq;
 
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;

@@ -1,4 +1,4 @@
-package app.students.Service_S.configuration;
+package app.students.Service_S.configuration.soap;
 
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.ApplicationContext;

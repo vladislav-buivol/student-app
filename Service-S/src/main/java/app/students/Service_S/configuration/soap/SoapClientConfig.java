@@ -1,4 +1,4 @@
-package app.students.Service_S.configuration;
+package app.students.Service_S.configuration.soap;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

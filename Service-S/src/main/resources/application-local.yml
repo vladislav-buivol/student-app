@@ -20,3 +20,12 @@ server:
   port: 8084
 service-s:
   wsEndpoint: http://localhost:8084/ws
+app:
+  storage:
+    minio:
+      endpoint: http://10.13.31.13:9003/
+      admin: admin
+      password: adminpassword
+      bucket: student-files
+      presign-ttl-seconds: 900  # 15 minutes
+

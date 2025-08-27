@@ -1,6 +1,6 @@
 package app.students.Service_S.listener;
 
-import app.students.Service_S.configuration.RabbitmqConfiguration;
+import app.students.Service_S.configuration.rabbitmq.RabbitmqConfiguration;
 import com.example.students.GetAllStudentsRequest;
 import com.example.students.GetAllStudentsResponse;
 import com.example.students.GetStudentRequest;
