@@ -2,6 +2,7 @@ package app.students.Service_S.service;
 
 import app.students.Service_S.data.Student;
 import app.students.Service_S.respository.StudentRepository;
+import app.students.Service_S.storage.StorageProperties;
 import app.students.Service_S.storage.StorageService;
 import com.example.students.StudentData;
 import org.springframework.stereotype.Service;
@@ -9,6 +10,8 @@ import org.springframework.stereotype.Service;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
+import java.net.HttpURLConnection;
+import java.net.URI;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,10 +20,12 @@ import java.util.List;
 public class StudentService {
     private final StudentRepository studentRepository;
     private final StorageService studentProfileStorageService;
+    private final StorageProperties storageProperties;
 
-    public StudentService(StudentRepository studentRepository, StorageService studentProfileStorageService) {
+    public StudentService(StudentRepository studentRepository, StorageService studentProfileStorageService, StorageProperties storageProperties) {
         this.studentRepository = studentRepository;
         this.studentProfileStorageService = studentProfileStorageService;
+        this.storageProperties = storageProperties;
     }
 
     public List<StudentData> getAllStudents() {
@@ -41,7 +46,7 @@ public class StudentService {
         String url;
         try {
             url = studentProfileStorageService
-                    .presignGet(student.getRecordBook() + "/img.png", Duration.ofSeconds(900)).toString();
+                    .presignGet(student.getRecordBook() + "/img.png", Duration.ofSeconds(storageProperties.presignTtlSeconds())).toString();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -52,10 +57,23 @@ public class StudentService {
         sd.setRecordBook(student.getRecordBook());
         sd.setProfileImageUrl(student.getProfileImageUrl());
         sd.setCreatedAt(convertToXmlCalendar(student));
-        if (url != null) {
+        if (checkIfImageExists(url)) {
             sd.setProfileImageUrl(url);
         }
         return sd;
+    }
+
+    private boolean checkIfImageExists(String url) {
+        try {
+            HttpURLConnection connection = (HttpURLConnection) URI.create(url).toURL().openConnection();
+            connection.setRequestMethod("GET");
+            connection.setConnectTimeout(3000);
+            connection.setReadTimeout(3000);
+            int responseCode = connection.getResponseCode();
+            return responseCode == HttpURLConnection.HTTP_OK;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private XMLGregorianCalendar convertToXmlCalendar(Student students) {

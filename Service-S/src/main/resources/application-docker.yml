@@ -20,3 +20,11 @@ server:
   port: ${SERVICE_S_PORT}
 service-s:
   wsEndpoint: ${WS_ENDPOINT}
+app:
+  storage:
+    minio:
+      endpoint: ${MINIO_ENDPOINT}
+      admin: ${MINIO_ROOT_USER}
+      password: ${MINIO_ROOT_PASSWORD}
+      bucket: student-files
+      presign-ttl-seconds: 900  # 15 minutes
