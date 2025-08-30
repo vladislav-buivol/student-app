@@ -5,13 +5,14 @@ import app.students.Service_S.respository.StudentRepository;
 import app.students.Service_S.storage.StorageProperties;
 import app.students.Service_S.storage.StorageService;
 import com.example.students.StudentData;
+import jakarta.persistence.EntityNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-import java.net.HttpURLConnection;
-import java.net.URI;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,34 +20,54 @@ import java.util.List;
 @Service
 public class StudentService {
     private final StudentRepository studentRepository;
-    private final StorageService studentProfileStorageService;
+    private final StorageService minioStorageService;
     private final StorageProperties storageProperties;
+    private final Logger log = LoggerFactory.getLogger(StudentService.class);
 
-    public StudentService(StudentRepository studentRepository, StorageService studentProfileStorageService, StorageProperties storageProperties) {
+    public StudentService(StudentRepository studentRepository, StorageService minioStorageService, StorageProperties storageProperties) {
         this.studentRepository = studentRepository;
-        this.studentProfileStorageService = studentProfileStorageService;
+        this.minioStorageService = minioStorageService;
         this.storageProperties = storageProperties;
     }
 
     public List<StudentData> getAllStudents() {
-        return studentRepository
+        log.info("StudentService.getAllStudents called");
+        List<StudentData> list = studentRepository
                 .findAll()
-                .stream().map(this::mapStudent)
+                .stream().map(this::mapToStudentData)
                 .toList();
+        log.info("StudentService.getAllStudents returning count={}", list.size());
+        return list;
     }
 
     public StudentData getStudentByRecordBook(String recordBook) {
-        return studentRepository
+        log.info("StudentService.getStudentByRecordBook called recordBook={}", recordBook);
+        StudentData data = studentRepository
                 .findByRecordBook(recordBook)
-                .map(this::mapStudent)
+                .map(this::mapToStudentData)
                 .orElse(null);
+        log.info("StudentService.getStudentByRecordBook found={}", data != null);
+        return data;
     }
 
-    private StudentData mapStudent(Student student) {
-        String url;
+    public void update(String recordId, StudentData studentData) {
+        log.info("StudentService.update called recordId={}", recordId);
+        Student student = studentRepository.findByRecordBook(recordId)
+                .orElseThrow(EntityNotFoundException::new);
+        studentRepository.save(mapToStudent(student, studentData));
+        log.info("StudentService.update saved recordId={}", recordId);
+    }
+
+    private StudentData mapToStudentData(Student student) {
+        if (student == null) {
+            throw new EntityNotFoundException("Student is null");
+        }
+        log.info("StudentService.mapToStudentData called recordBook={}", student.getRecordBook());
+        String url = "";
         try {
-            url = studentProfileStorageService
-                    .presignGet(student.getRecordBook() + "/img.png", Duration.ofSeconds(storageProperties.presignTtlSeconds())).toString();
+            if (minioStorageService.objectExists(student.getProfileImageUrl())) {
+                url = minioStorageService.presignGet(student.getProfileImageUrl(), Duration.ofSeconds(storageProperties.presignTtlSeconds())).toString();
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -55,28 +76,44 @@ public class StudentService {
         sd.setLastName(student.getLastName());
         sd.setFaculty(student.getFaculty());
         sd.setRecordBook(student.getRecordBook());
-        sd.setProfileImageUrl(student.getProfileImageUrl());
         sd.setCreatedAt(convertToXmlCalendar(student));
-        if (checkIfImageExists(url)) {
-            sd.setProfileImageUrl(url);
-        }
+        sd.setProfileImageUrl(url);
+        log.info("StudentService.mapToStudentData created dto for recordBook={}", sd.getRecordBook());
         return sd;
     }
 
-    private boolean checkIfImageExists(String url) {
-        try {
-            HttpURLConnection connection = (HttpURLConnection) URI.create(url).toURL().openConnection();
-            connection.setRequestMethod("GET");
-            connection.setConnectTimeout(3000);
-            connection.setReadTimeout(3000);
-            int responseCode = connection.getResponseCode();
-            return responseCode == HttpURLConnection.HTTP_OK;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+    public Student mapToStudent(Student student, StudentData dto) {
+        if (dto == null) {
+            throw new EntityNotFoundException("StudentData is null");
         }
+        if (student == null) {
+            throw new EntityNotFoundException("Student is null");
+        }
+        log.info("StudentService.mapToStudent called recordBook={} -> {}", student.getRecordBook(), dto.getRecordBook());
+        student.setFirstName(dto.getFirstName());
+        student.setLastName(dto.getLastName());
+        student.setFaculty(dto.getFaculty());
+        student.setRecordBook(dto.getRecordBook());
+        student.setProfileImageUrl(dto.getProfileImageUrl());
+        if (dto.getCreatedAt() != null) {
+            student.setCreatedAt(toLocalDateTime(dto.getCreatedAt()));
+        }
+        return student;
     }
 
+    private LocalDateTime toLocalDateTime(javax.xml.datatype.XMLGregorianCalendar xmlCal) {
+        log.info("StudentService.toLocalDateTime called");
+        return xmlCal.toGregorianCalendar()
+                .toZonedDateTime()
+                .toLocalDateTime();
+    }
+
+
     private XMLGregorianCalendar convertToXmlCalendar(Student students) {
+        if (students == null) {
+            throw new EntityNotFoundException("Student is null");
+        }
+        log.info("StudentService.convertToXmlCalendar called recordBook={}", students.getRecordBook());
         LocalDateTime currentUTCTime = students.getCreatedAt();
         String iso = students.getCreatedAt().toString();
         if (currentUTCTime.getSecond() == 0 && currentUTCTime.getNano() == 0) {
