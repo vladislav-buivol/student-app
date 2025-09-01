@@ -1,4 +1,4 @@
-package app.students.Service_S.storage;
+package app.students.Service_S.properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

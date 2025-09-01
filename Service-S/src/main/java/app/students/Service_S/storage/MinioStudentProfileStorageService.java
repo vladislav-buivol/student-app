@@ -1,5 +1,6 @@
 package app.students.Service_S.storage;
 
+import app.students.Service_S.properties.StorageProperties;
 import io.minio.*;
 import io.minio.errors.*;
 import io.minio.http.Method;

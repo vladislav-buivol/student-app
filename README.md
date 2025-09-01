@@ -454,6 +454,8 @@ mvn deploy:deploy-file -DgroupId="com.example" -DartifactId=students-soap-client
 E.g
 ```
 mvn deploy:deploy-file -DgroupId="com.example" -DartifactId=students-soap-client -Dversion="1.0.0" -Dpackaging=jar -Dfile="C:\projects\Microservices\students-soap-client-dependency\target\students-soap-client-1.0.0.jar" -DrepositoryId=nexus -Durl="http://10.13.31.13:8081/repository/microservices-soap-service-r/"
+or
+mvn install:install-file -DgroupId="com.example" -DartifactId=students-soap-client -Dversion="1.0.0" -Dpackaging=jar -Dfile="C:\projects\Microservices\students-soap-client-dependency\target\students-soap-client-1.0.0.jar" 
 ```
 
 Notes

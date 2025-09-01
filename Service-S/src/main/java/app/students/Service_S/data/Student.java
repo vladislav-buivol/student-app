@@ -2,7 +2,9 @@ package app.students.Service_S.data;
 
 import jakarta.persistence.*;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+
+import static java.time.ZoneOffset.UTC;
 
 @Entity
 @Table(name = "students")
@@ -30,14 +32,14 @@ public class Student {
     private String lastName;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private ZonedDateTime createdAt;
 
     @Column(name = "profile_image_url", nullable = true)
     private String profileImageUrl;
 
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
+        createdAt = ZonedDateTime.now(UTC);
     }
 
     // Getters and setters
@@ -81,11 +83,11 @@ public class Student {
         this.lastName = lastName;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public ZonedDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(ZonedDateTime createdAt) {
         this.createdAt = createdAt;
     }
 

@@ -1,8 +1,8 @@
 package app.students.Service_S.service;
 
 import app.students.Service_S.data.Student;
+import app.students.Service_S.properties.StorageProperties;
 import app.students.Service_S.respository.StudentRepository;
-import app.students.Service_S.storage.StorageProperties;
 import app.students.Service_S.storage.StorageService;
 import com.example.students.StudentData;
 import jakarta.persistence.EntityNotFoundException;
@@ -14,8 +14,12 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.GregorianCalendar;
 import java.util.List;
+
+import static java.time.ZoneOffset.UTC;
 
 @Service
 public class StudentService {
@@ -96,33 +100,31 @@ public class StudentService {
         student.setRecordBook(dto.getRecordBook());
         student.setProfileImageUrl(dto.getProfileImageUrl());
         if (dto.getCreatedAt() != null) {
-            student.setCreatedAt(toLocalDateTime(dto.getCreatedAt()));
+            student.setCreatedAt(toZonedDateTime(dto.getCreatedAt()));
         }
         return student;
     }
 
-    private LocalDateTime toLocalDateTime(javax.xml.datatype.XMLGregorianCalendar xmlCal) {
-        log.info("StudentService.toLocalDateTime called");
-        return xmlCal.toGregorianCalendar()
-                .toZonedDateTime()
-                .toLocalDateTime();
+    private ZonedDateTime toZonedDateTime(XMLGregorianCalendar xmlCal) {
+        if (xmlCal == null) return null;
+        return xmlCal.toGregorianCalendar().toZonedDateTime();
     }
 
+    private XMLGregorianCalendar convertToXmlCalendar(Student student) {
+        if (student == null) throw new EntityNotFoundException("Student is null");
 
-    private XMLGregorianCalendar convertToXmlCalendar(Student students) {
-        if (students == null) {
-            throw new EntityNotFoundException("Student is null");
-        }
-        log.info("StudentService.convertToXmlCalendar called recordBook={}", students.getRecordBook());
-        LocalDateTime currentUTCTime = students.getCreatedAt();
-        String iso = students.getCreatedAt().toString();
-        if (currentUTCTime.getSecond() == 0 && currentUTCTime.getNano() == 0) {
-            iso += ":00"; // necessary hack because the second part is not optional in XML
-        }
+        ZonedDateTime createdAt = student.getCreatedAt();
+        if (createdAt == null) return null;
+        ZonedDateTime utc = createdAt.withZoneSameInstant(ZoneOffset.UTC);
+        GregorianCalendar gcal = GregorianCalendar.from(utc);
+
         try {
-            return DatatypeFactory.newInstance().newXMLGregorianCalendar(iso);
+            XMLGregorianCalendar xmlCal = DatatypeFactory.newInstance().newXMLGregorianCalendar(gcal);
+            xmlCal.setTimezone(0);
+            return xmlCal;
         } catch (DatatypeConfigurationException e) {
             throw new RuntimeException(e);
         }
     }
+
 }
