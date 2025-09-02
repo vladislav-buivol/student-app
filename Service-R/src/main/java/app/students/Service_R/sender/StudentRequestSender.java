@@ -1,6 +1,7 @@
 package app.students.Service_R.sender;
 
 import app.students.Service_R.configuration.RabbitmqConfiguration;
+import app.students.Service_R.validator.GetStudentRequestValidator;
 import com.example.students.GetAllStudentsRequest;
 import com.example.students.GetAllStudentsResponse;
 import com.example.students.GetStudentRequest;
@@ -14,9 +15,11 @@ import org.springframework.stereotype.Service;
 public class StudentRequestSender {
     private final Logger log = LoggerFactory.getLogger(StudentRequestSender.class);
     private final RabbitTemplate rabbitTemplate;
+    private final GetStudentRequestValidator requestValidator;
 
-    public StudentRequestSender(RabbitTemplate rabbitTemplate) {
+    public StudentRequestSender(RabbitTemplate rabbitTemplate, GetStudentRequestValidator requestValidator) {
         this.rabbitTemplate = rabbitTemplate;
+        this.requestValidator = requestValidator;
         log.info("StudentRequestSender: Initializing StudentRequestSender");
     }
 
@@ -30,6 +33,7 @@ public class StudentRequestSender {
     }
 
     public GetStudentResponse sendGetStudentRequest(GetStudentRequest request) {
+        requestValidator.validate(request);
         log.info("StudentRequestSender: Executing sendGetStudentRequest");
         return (GetStudentResponse) rabbitTemplate.convertSendAndReceive(
                 RabbitmqConfiguration.EXCHANGE_NAME,
