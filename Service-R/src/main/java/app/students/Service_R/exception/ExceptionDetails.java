@@ -9,7 +9,11 @@ public class ExceptionDetails {
     private String uri;
     private String method;
 
-    public ExceptionDetails(ResponseStatusException ex, HttpServletRequest request) {
+    public static ExceptionDetails of(ResponseStatusException ex, HttpServletRequest request) {
+        return new ExceptionDetails(ex, request);
+    }
+
+    private ExceptionDetails(ResponseStatusException ex, HttpServletRequest request) {
         this.statusCode = ex.getStatusCode().toString();
         this.reason = ex.getReason();
         this.uri = request.getRequestURI();

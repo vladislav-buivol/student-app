@@ -15,8 +15,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<ExceptionDetails> validationException(ResponseStatusException ex, HttpServletRequest request) {
         log.error("Request {} {} failed: {}", request.getMethod(), request.getRequestURI(), ex.getReason(), ex);
-
-        ExceptionDetails details = new ExceptionDetails(ex, request);
-        return ResponseEntity.status(ex.getStatusCode()).body(details);
+        return ResponseEntity.status(ex.getStatusCode()).body(ExceptionDetails.of(ex, request));
     }
 }

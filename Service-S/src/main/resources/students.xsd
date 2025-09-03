@@ -14,12 +14,8 @@
     <xs:element name="getStudentResponse">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="firstName" type="xs:string"/>
-                <xs:element name="lastName" type="xs:string"/>
-                <xs:element name="faculty" type="xs:string"/>
-                <xs:element name="recordBook" type="xs:string"/>
-                <xs:element name="createdAt" type="xs:dateTime"/>
-                <xs:element name="profileImageUrl" type="xs:string"/>
+                <xs:element name="student" type="tns:studentData" minOccurs="0"/>
+                <xs:element name="error" type="tns:errorInfo" minOccurs="0"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -49,6 +45,14 @@
             <xs:element name="recordBook" type="xs:string"/>
             <xs:element name="createdAt" type="xs:dateTime"/>
             <xs:element name="profileImageUrl" type="xs:string"/>
+            <xs:element name="error" type="tns:errorInfo" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="errorInfo">
+        <xs:sequence>
+            <xs:element name="code" type="xs:string"/>
+            <xs:element name="message" type="xs:string"/>
         </xs:sequence>
     </xs:complexType>
 </xs:schema>

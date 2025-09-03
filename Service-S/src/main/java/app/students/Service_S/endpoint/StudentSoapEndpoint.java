@@ -1,8 +1,8 @@
 package app.students.Service_S.endpoint;
 
+import app.students.Service_S.configuration.exception.StudentNotFoundException;
 import app.students.Service_S.service.StudentService;
 import com.example.students.*;
-import jakarta.xml.ws.WebServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ws.server.endpoint.annotation.Endpoint;
@@ -23,14 +23,17 @@ public class StudentSoapEndpoint {
         this.studentService = studentService;
     }
 
-    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "getStudentRequest")
+   /* @PayloadRoot(namespace = NAMESPACE_URI, localPart = "getStudentRequest")
     @ResponsePayload
     public GetStudentResponse getStudent(@RequestPayload GetStudentRequest request) {
-        if (request == null) {
-            throw new WebServiceException("Invalid request");
+        if (request == null || request.getRecordBook() == null) {
+            //throw new InvalidStudentRequestException("recordBook is required");
         }
         log.info("SOAP getStudent called with recordBook={}", request.getRecordBook());
         StudentData studentData = studentService.getStudentByRecordBook(request.getRecordBook());
+        if (studentData == null) {
+            //throw new StudentNotFoundException("Student not found for recordBook=" + request.getRecordBook());
+        }
         GetStudentResponse resp = new GetStudentResponse();
         if (studentData != null) {
             resp.setFirstName(studentData.getFirstName());
@@ -42,6 +45,19 @@ public class StudentSoapEndpoint {
         }
         log.info("SOAP getStudent returning dataFound={}", studentData != null);
         return resp;
+    }*/
+
+    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "getStudentRequest")
+    @ResponsePayload
+    public GetStudentResponse getStudent(@RequestPayload GetStudentRequest request) {
+        log.info("SOAP getStudent called with recordBook={}", request.getRecordBook());
+        StudentData studentData = studentService.getStudentByRecordBook(request.getRecordBook());
+        if (studentData == null) {
+            throw new StudentNotFoundException("Student not found for recordBook=" + request.getRecordBook());
+        }
+        GetStudentResponse resp = new GetStudentResponse();
+        resp.setStudent(studentData);
+        return resp;
     }
 
     @PayloadRoot(namespace = NAMESPACE_URI, localPart = "getAllStudentsRequest")
@@ -51,8 +67,6 @@ public class StudentSoapEndpoint {
         List<StudentData> students = studentService.getAllStudents();
         GetAllStudentsResponse resp = new GetAllStudentsResponse();
         resp.getStudent().addAll(students);
-        log.info("SOAP getAllStudents returning count={}", students.size());
         return resp;
     }
-
 }
