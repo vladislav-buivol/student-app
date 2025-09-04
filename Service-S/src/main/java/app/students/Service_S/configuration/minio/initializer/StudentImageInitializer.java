@@ -44,7 +44,7 @@ public class StudentImageInitializer implements CommandLineRunner {
                     String objectKey = String.format("%s/%s_%s", recordBook, UUID.randomUUID(), imageResource.contentLength());
                     log.info("Uploading default image for recordBook={} objectKey={}", recordBook, objectKey);
                     try (InputStream in = imageResource.getInputStream()) {
-                        minioStorageService.upload(objectKey, in, image.length(), "image/png");
+                        minioStorageService.upload(objectKey, in, imageResource.contentLength(), "image/png");
                     }
                     student.setProfileImageUrl(objectKey);
                     studentService.update(student.getRecordBook(), student);
