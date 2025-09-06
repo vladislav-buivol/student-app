@@ -11,6 +11,8 @@ import java.time.Duration;
 
 public interface StorageService {
 
+    void createBucket() throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException;
+
     URL presignGet(String objectKet, Duration ttl) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException;
 
     String upload(String objectKey, InputStream in, long size, String contentType);

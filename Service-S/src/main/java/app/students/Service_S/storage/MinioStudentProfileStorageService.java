@@ -30,6 +30,11 @@ public class MinioStudentProfileStorageService implements StorageService {
     }
 
     @Override
+    public void createBucket() throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        minioClient.makeBucket(MakeBucketArgs.builder().bucket(properties.bucket()).build());
+    }
+
+    @Override
     public URL presignGet(String objectKet, Duration ttl) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         log.info("Minio.presignGet called objectKey={} ttlSeconds={}", objectKet, ttl != null ? ttl.getSeconds() : null);
         String url = minioClient
@@ -107,13 +112,12 @@ public class MinioStudentProfileStorageService implements StorageService {
     @Override
     public boolean bucketExists() {
         try {
-            minioClient.bucketExists(
+            return minioClient.bucketExists(
                     BucketExistsArgs
                             .builder()
                             .bucket(properties.bucket())
                             .build()
             );
-            return true;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

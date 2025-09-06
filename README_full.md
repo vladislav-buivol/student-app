@@ -535,7 +535,7 @@ cd students-soap-client-dependency
 - Execute the deploy command (Windows PowerShell example provided in the issue):
 
 ```
-mvn deploy:deploy-file -DgroupId="com.example" -DartifactId=students-soap-client -Dversion="1.0.0" -Dpackaging=jar -Dfile="\target\students-soap-client-1.0.0.jar" -DrepositoryId=nexus -Durl="http://%NEXUS_PORT%/repository/<your-hosted-repo>/"
+mvn deploy:deploy-file -DgroupId="com.example" -DartifactId=students-soap-client -Dversion="1.0.0" -Dpackaging=jar -Dfile="\target\students-soap-client-1.0.0.jar" -DrepositoryId=nexus -Durl="http://%NEXUS_HOST%/repository/<your-hosted-repo>/"
 ```
 
 E.g

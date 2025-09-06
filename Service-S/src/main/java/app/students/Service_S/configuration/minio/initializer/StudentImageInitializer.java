@@ -1,5 +1,6 @@
 package app.students.Service_S.configuration.minio.initializer;
 
+import app.students.Service_S.properties.StorageProperties;
 import app.students.Service_S.service.StudentService;
 import app.students.Service_S.storage.MinioStudentProfileStorageService;
 import com.example.students.StudentData;
@@ -19,20 +20,25 @@ public class StudentImageInitializer implements CommandLineRunner {
     private final MinioStudentProfileStorageService minioStorageService;
     private final ResourceLoader resourceLoader;
     private final StudentService studentService;
+    private final StorageProperties properties;
     private final Logger log = LoggerFactory.getLogger(StudentImageInitializer.class);
 
-    public StudentImageInitializer(MinioStudentProfileStorageService minioStorageService, ResourceLoader resourceLoader, StudentService studentService) {
+    public StudentImageInitializer(MinioStudentProfileStorageService minioStorageService, ResourceLoader resourceLoader, StudentService studentService, StorageProperties properties) {
         this.minioStorageService = minioStorageService;
         this.resourceLoader = resourceLoader;
         this.studentService = studentService;
+        this.properties = properties;
     }
 
     @Override
     public void run(String... args) throws Exception {
         log.info("StudentImageInitializer started");
         if (!minioStorageService.bucketExists()) {
-            throw new Exception("Bucket does not exist");
+            log.warn("Bucket '{}' does not exist, creating it...", properties.bucket());
+            minioStorageService.createBucket(); // create the bucket
+            log.info("Bucket '{}' created successfully", properties.bucket());
         }
+
         List<StudentData> studentData = studentService.getAllStudents();
         Resource imageResource = resourceLoader.getResource("classpath:images/profile/init-images/default_profile_image.png");
         String image = imageResource.getFilename();
